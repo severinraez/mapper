@@ -2,6 +2,7 @@
 
 require 'neo4j'
 require 'pp'
+require 'sinatra'
 
 require_relative 'packages/graph/bootstrap'
 require_relative 'packages/graph/city'
@@ -19,8 +20,6 @@ Graph::Bootstrap.new(config['db']).run
 
 # match (c:City) with c call spatial.addNode('test_layer', c) yield node return count(*)
 
-nodes = Graph::City.all
-
 f = FDSL.new
 fi = f # Impure functions
 
@@ -29,6 +28,7 @@ fi.one { |node| node.to_json }
 # [Node] -> String
 f.many { |nodes| f{ nodes.map(&_one) } }
 
-pass = f.many(nodes)
-
-pp pass.call
+get '/cities' do
+  nodes = Graph::City.all
+  f.many(nodes).call
+end
