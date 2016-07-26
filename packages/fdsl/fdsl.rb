@@ -1,15 +1,16 @@
 class FDSL
   # DATA TYPES
 
-  # Side effects free function
+  # A side effects free function.
   class Function < Proc
   end
 
-  # Function with side effects
+  # A function with side effects.
   class ImpureFunction < Function; end
 
   # SYNTAX
 
+  # To define an anonymous function : f{ |arg| arg + 1 }
   def f(&block)
     puts 'f called'
     Function.new(&block)
@@ -19,19 +20,29 @@ class FDSL
     ImpureFunction.new(&block)
   end
 
-  def run(&block)
+  # HELPERS
+
+  def initialize
+    @proc_store = {}
   end
 
-  # HELPERS
+  # To define a named function: FDSL#function_name { |arg| arg + 1 }
   def method_missing(name, *method_args, &block)
-    metaclass.send :define_method, name do |*args|
+    # Define a new method that returns a lambda that will
+    # evaluate the block given with access to the methods and syntax
+    # of this FDSL instance.
+
+    private_name = "_#{name}"
+
+    # Define a helper method. This, when converted via to_proc,
+    # will generate a lambda, thus we have validated argument lists.
+    metaclass.send :define_method, private_name do |*args|
       val = instance_exec(*args, &block)
       val
     end
 
-    metaclass.send :define_method, :"_#{name}" do |*args|
-      raise "_#{name}: No arguments expected for a reference, got #{args.inspect}" unless args.empty?
-      method(name)
+    metaclass.send :define_method, name do |*args|
+      @proc_store[name] ||= method(private_name).to_proc
     end
   end
 

@@ -31,12 +31,18 @@ Graph::Bootstrap.new(config['db']).run
 f = FDSL.new
 fi = f # Impure functions
 
+#(a -> b), [a] -> [b]
+f.map { |func, array| array.map(&func) }
 # Node -> String
-fi.one { |node| node.to_json }
+f.one { |node| node.to_json }
 # [Node] -> String
-f.many { |nodes| f{ nodes.map(&_one) } }
+f.many { |nodes| f{ map[one, nodes] } }
+
+nodes = Graph::City.all
+pp f.many[nodes]['a']
 
 get '/cities' do
   nodes = Graph::City.all
-  f.many(nodes).call
+  f.many(nodes)['a']
 end
+
