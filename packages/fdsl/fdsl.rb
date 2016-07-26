@@ -1,23 +1,11 @@
 class FDSL
-  # DATA TYPES
-
-  # A side effects free function.
-  class Function < Proc
-  end
-
-  # A function with side effects.
-  class ImpureFunction < Function; end
-
   # SYNTAX
 
-  # To define an anonymous function : f{ |arg| arg + 1 }
+  # To define an anonymous function: f{ |arg| arg + 1 }
   def f(&block)
-    puts 'f called'
-    Function.new(&block)
-  end
+    raise 'Need a block' unless block_given?
 
-  def f!(&block)
-    ImpureFunction.new(&block)
+    BlockAsLambda.new(binding, &block).lambda
   end
 
   # HELPERS
@@ -32,17 +20,40 @@ class FDSL
     # evaluate the block given with access to the methods and syntax
     # of this FDSL instance.
 
-    private_name = "_#{name}"
+    l = BlockAsLambda.new(binding, &block).lambda
 
-    # Define a helper method. This, when converted via to_proc,
-    # will generate a lambda, thus we have validated argument lists.
-    metaclass.send :define_method, private_name do |*args|
-      val = instance_exec(*args, &block)
+    # Define Proc that executes the lambda in this class' context.
+    proc = -> (*args) {
+      val = instance_exec(*args, &l)
       val
+    }
+
+    # Add getter method for the proc.
+    metaclass.send :define_method, name do |*args|
+      proc
+    end
+  end
+
+  class BlockAsLambda
+    def initialize(parent_binding, &block)
+      @parent_binding = parent_binding
+
+      # Define a helper method. Convert it via to_proc,
+      # thus converting our block to a lambda with validated argument lists.
+      metaclass.send :define_method, :_lambda, &block
+      @lambda = method(:_lambda).to_proc
     end
 
-    metaclass.send :define_method, name do |*args|
-      @proc_store[name] ||= method(private_name).to_proc
+    def method_missing(name, *args, &block)
+      method = @parent_binding.eval("method(#{name.inspect})")
+      method.call(*args, &block)
+    end
+
+    attr_reader :lambda
+
+    private
+    def metaclass
+      class << self; self; end
     end
   end
 

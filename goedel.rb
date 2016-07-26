@@ -38,11 +38,8 @@ f.one { |node| node.to_json }
 # [Node] -> String
 f.many { |nodes| f{ map[one, nodes] } }
 
-nodes = Graph::City.all
-pp f.many[nodes]['a']
-
 get '/cities' do
   nodes = Graph::City.all
-  f.many(nodes)['a']
+  f.many[nodes][]
 end
 
