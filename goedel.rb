@@ -31,15 +31,31 @@ Graph::Bootstrap.new(config['db']).run
 f = FDSL.new
 fi = f # Impure functions
 
-#(a -> b), [a] -> [b]
+# As a dsl reminder on how to return a function:
+# f.many_json { |nodes| f{ map[json, nodes] } }
+
+# (p, q) -> (a) => p(q(a))
+f.compose { |p, q| f { |*args| p[q[*args]] } }
+# a -> b
+f.json { |obj| obj.to_json }
+# (a -> b), [a] -> [b]
 f.map { |func, array| array.map(&func) }
-# Node -> String
-f.one { |node| node.to_json }
+
+# Node -> Hash
+f.to_hash { |node| node.as_json(root: false) }
+# [Node] => [Hash]
+f.many_hash { |nodes| map[to_hash, nodes] }
 # [Node] -> String
-f.many { |nodes| f{ map[one, nodes] } }
+f.many_json! { compose[json, many_hash] }
+
+before do
+  response.headers['Access-Control-Allow-Origin'] = '*'
+  response.headers['Content-Type'] = 'application/json'
+end
 
 get '/cities' do
   nodes = Graph::City.all
-  f.many[nodes][]
-end
+  f.many_json[nodes]
 
+  # ... Graph::City.all.map(&:to_json)
+end
