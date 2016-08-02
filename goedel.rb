@@ -4,6 +4,7 @@
 require 'neo4j'
 require 'pp'
 require 'sinatra'
+require 'sinatra/param'
 
 def require_package(name)
   require_relative 'packages/' + name
@@ -50,7 +51,8 @@ f.many_json! { compose[json, many_hash] }
 
 before do
   response.headers['Access-Control-Allow-Origin'] = '*'
-  response.headers['Content-Type'] = 'application/json'
+
+  content_type :json
 end
 
 get '/cities' do
@@ -58,4 +60,14 @@ get '/cities' do
   f.many_json[nodes]
 
   # ... Graph::City.all.map(&:to_json)
+end
+
+post '/cities' do
+  param :name, String, required: true
+  param :latitude, Float, required: true
+  param :longitude, Float, required: true
+
+  name, latitude, longitude = params['name'], params['latitude'], params['longitude']
+
+  node = Graph::City.create(name: name, latitude: latitude, longitude: longitude)
 end
