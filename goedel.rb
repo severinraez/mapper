@@ -49,6 +49,8 @@ f.many_hash { |nodes| map[to_hash, nodes] }
 # [Node] -> String
 f.many_json! { compose[json, many_hash] }
 
+set :bind, '0.0.0.0' # Allow access from non-localhost
+
 before do
   response.headers['Access-Control-Allow-Origin'] = '*'
 
@@ -70,4 +72,6 @@ post '/cities' do
   name, latitude, longitude = params['name'], params['latitude'], params['longitude']
 
   node = Graph::City.create(name: name, latitude: latitude, longitude: longitude)
+
+  node.to_json
 end
