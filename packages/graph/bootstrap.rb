@@ -1,5 +1,7 @@
 module Graph; end
 
+require_relative 'city'
+
 class Graph::Bootstrap
   def initialize(config)
     @config = config

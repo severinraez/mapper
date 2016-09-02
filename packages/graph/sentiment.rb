@@ -1,6 +1,6 @@
 module Graph; end
 
-class Graph::City
+class Graph::Sentiment
   include Neo4j::ActiveNode
 
   property :name
