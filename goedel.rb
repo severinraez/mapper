@@ -12,6 +12,7 @@ end
 
 require_package 'graph/bootstrap'
 require_package 'fdsl/fdsl'
+require_package 'process/index'
 
 # CONFIGURATION
 # Load config into file.
@@ -49,6 +50,7 @@ f.many_hash { |nodes| map[to_hash, nodes] }
 # [Node] -> String
 f.many_json! { compose[json, many_hash] }
 
+# HTTP INTERFACE
 set :bind, '0.0.0.0' # Allow access from non-localhost
 
 before do
@@ -57,55 +59,18 @@ before do
   content_type :json
 end
 
-# FLOW TRAITS
-# Should be helper methods
-def has_range
-  @range = Graph::Query::Range.new(params[:range])
-end
+# ROUTING
+def route(http_method, path, process)
+  sinatra_method = method(:http_method)
 
-def returns_json(type)
-  @result =
-    case type
-    when :many
-      f.many_json[@result]
-    when :one
-      f.json[@result]
-    end
-  raise "Unknown type #{type.inspect}"
-end
+  url_fragment = "/#{path.map(&:to_s).join('/')}"
 
-def persists_and_renders
-  @result=f.json[@result]
-end
-
-# SHADOW SINATRA HELPERS
-# 
-sinatra_get=method(:get)
-
-def get *args, &block
-  sinatra_get *args do
-    yield
-
-    render @result
+  sinatra_method.call(url_fragment) do
+    process.call(params)
   end
 end
 
-get '/sentiments' do
-  has_range
+sentiments = Process::Sentiment.new(f, fi)
 
-  @result = fi.inject(Graph::Sentiment.all, &@range.mutate)
-
-  returns_json(:many)
-end
-
-post '/sentiments' do
-  param :name, String, required: true
-  param :latitude, Float, required: true
-  param :longitude, Float, required: true
-
-  name, latitude, longitude = params['name'], params['latitude'], params['longitude']
-
-  @result = Graph::Sentiment.create(name: name, latitude: latitude, longitude: longitude)
-
-  persists_and_renders
-end
+route :get, :sentiments, &sentiments.fetch
+route :post, :sentiments, &sentiments.create
