@@ -1,10 +1,7 @@
 #!/bin/ruby
 
 # DEPENDENCIES
-require 'neo4j'
 require 'pp'
-require 'sinatra'
-require 'sinatra/param'
 
 def require_package(name)
   require_relative 'packages/' + name
@@ -13,6 +10,7 @@ end
 require_package 'graph/bootstrap'
 require_package 'fdsl/fdsl'
 require_package 'process/index'
+require_package 'http/server'
 
 # CONFIGURATION
 # Load config into file.
@@ -50,27 +48,11 @@ f.many_hash { |nodes| map[to_hash, nodes] }
 # [Node] -> String
 f.many_json! { compose[json, many_hash] }
 
-# HTTP INTERFACE
-set :bind, '0.0.0.0' # Allow access from non-localhost
+Server = Class.new(Http::Server) do
+  @@sentiments = Process::Sentiment.new(f, fi)
 
-before do
-  response.headers['Access-Control-Allow-Origin'] = '*'
-
-  content_type :json
+  add_route :get, :sentiments, @@sentiments.method(:fetch)
+  add_route :post, :sentiments, @@sentiments.method(:create)
 end
 
-# ROUTING
-def route(http_method, path, process)
-  sinatra_method = method(:http_method)
-
-  url_fragment = "/#{path.map(&:to_s).join('/')}"
-
-  sinatra_method.call(url_fragment) do
-    process.call(params)
-  end
-end
-
-sentiments = Process::Sentiment.new(f, fi)
-
-route :get, :sentiments, &sentiments.fetch
-route :post, :sentiments, &sentiments.create
+Server.run!

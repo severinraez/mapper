@@ -1,6 +1,8 @@
+require 'neo4j'
+
 module Graph; end
 
-require_relative 'city'
+require_relative 'sentiment'
 
 class Graph::Bootstrap
   def initialize(config)

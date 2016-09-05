@@ -1,4 +1,4 @@
-require_package 'graph/sentiments'
+require_package 'graph/sentiment'
 
 module Process
   class GraphQuery
