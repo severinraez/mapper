@@ -1,13 +1,17 @@
 require_package 'graph/sentiment'
+require_package 'graph/functions'
+require_package 'graph/query/range'
 
 module Process
   class GraphQuery
     # ACCESS TO FUNCTIONS
-
-    def initialize(f, fi)
-      @f = f; @fi = fi
+    def f # pure functions
+      Graph::Functions
     end
-    attr_accessor :f, :fi
+
+    def fi # impure functions
+      f
+    end
 
     # TRAITS
 
@@ -39,7 +43,7 @@ module Process
     end
 
     def has_range
-      @range = Graph::Query::Range.new(params[:range])
+      @range = Graph::Query::Range.new(@params[:range])
     end
   end
 end

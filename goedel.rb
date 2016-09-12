@@ -8,7 +8,6 @@ def require_package(name)
 end
 
 require_package 'graph/bootstrap'
-require_package 'fdsl/fdsl'
 require_package 'process/index'
 require_package 'http/server'
 
@@ -28,28 +27,8 @@ Graph::Bootstrap.new(config['db']).run
 # match (c:Sentiment) with c call spatial.addNode('test_layer', c) yield node return count(*)
 
 # MISSION
-f = FDSL.new
-fi = f # Impure functions
-
-# As a dsl reminder on how to return a function:
-# f.many_json { |nodes| f{ map[json, nodes] } }
-
-# (p, q) -> (a) => p(q(a))
-f.compose { |p, q| f { |*args| p[q[*args]] } }
-# a -> b
-f.json { |obj| obj.to_json }
-# (a -> b), [a] -> [b]
-f.map { |func, array| array.map(&func) }
-
-# Node -> Hash
-f.to_hash { |node| node.as_json(root: false) }
-# [Node] => [Hash]
-f.many_hash { |nodes| map[to_hash, nodes] }
-# [Node] -> String
-f.many_json! { compose[json, many_hash] }
-
 Server = Class.new(Http::Server) do
-  @@sentiments = Process::Sentiment.new(f, fi)
+  @@sentiments = Process::Sentiment.new
 
   add_route :get, :sentiments, @@sentiments.method(:fetch)
   add_route :post, :sentiments, @@sentiments.method(:create)

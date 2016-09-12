@@ -1,3 +1,5 @@
+require 'neo4j'
+
 module Graph; end
 
 class Graph::Sentiment

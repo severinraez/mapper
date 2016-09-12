@@ -2,10 +2,11 @@ require_relative 'graph_query'
 
 class Process::Sentiment < Process::GraphQuery
   def fetch(params)
+    params_from(params)
 
     has_range
 
-    @result = fi.inject(Graph::Sentiment.all, &@range.mutate)
+    @result = @range.of(Graph::Sentiment.all)
 
     returns_json
   end
