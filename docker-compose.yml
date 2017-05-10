@@ -1,0 +1,24 @@
+version: '3'
+services:
+  neo4j-dev:
+    image: "neo4j:3.2"
+    volumes:
+      - ./neo4j-data/dev:/data
+    ports:
+      - "17474:17474"
+      - "17687:17687"
+    environment:
+      - NEO4J_AUTH=none
+      - NEO4J_dbms_connector_http_listen__address=0.0.0.0:17474
+      - NEO4J_dbms_connector_bolt_listen__address=0.0.0.0:17687
+  neo4j-test:
+    image: "neo4j:3.2"
+    volumes:
+      - ./neo4j-data/test:/data
+    ports:
+      - "17475:17475"
+      - "17688:17688"
+    environment:
+      - NEO4J_AUTH=none
+      - NEO4J_dbms_connector_http_listen__address=0.0.0.0:17475
+      - NEO4J_dbms_connector_bolt_listen__address=0.0.0.0:17688
