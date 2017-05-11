@@ -9,6 +9,10 @@ describe Process::Sentiment do
   let(:f) { Graph::Functions }
 
   describe '#fetch' do
+    before do
+      Graph::Sentiment.create(name: 'Test', latitude: 46.9479, longitude: 7.4446)
+    end
+
     it 'renders found nodes' do
       result = instance.fetch(latitude: 46.9479, longitude: 7.4446)
 

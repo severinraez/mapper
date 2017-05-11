@@ -5,7 +5,7 @@ gem 'sinatra'
 
 group :test do
   gem 'minitest'
+  gem 'minitest-around'
   gem 'rack-test'
-  gem 'database_cleaner-neo4j'
   gem 'factory_girl'
 end

@@ -1,0 +1,4 @@
+db:
+  url: http://localhost:17475
+  username : neo4j
+  password: test
