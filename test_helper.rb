@@ -7,6 +7,8 @@ require 'minitest/autorun'
 
 require "minitest/reporters"
 
+require_package 'graph/bootstrap'
+
 module Test
   class BacktraceFilter < MiniTest::BacktraceFilter
     def filter(bt)
@@ -18,8 +20,6 @@ module Test
 end
 
 Minitest::Reporters.use!(Minitest::Reporters::SpecReporter.new, ENV, Test::BacktraceFilter.new)
-
-require_package 'graph/bootstrap'
 
 
 def establish_db_connection

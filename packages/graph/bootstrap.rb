@@ -16,6 +16,7 @@ class Graph::Bootstrap
 
   def run
     Neo4j::Config[:module_handling] = -> (class_name) {
+      next class_name if class_name.start_with?("Neo4j::")
       # Cut away the Graph::
       raise "What's a #{class_name}" unless class_name[0..6] == "Graph::"
       class_name[7..-1]

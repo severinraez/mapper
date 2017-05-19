@@ -16,7 +16,7 @@ describe Process::Sentiment do
     it 'renders found nodes' do
       result = instance.fetch(latitude: 46.9479, longitude: 7.4446)
 
-      assert_equals f.many_json(Graph::Sentiment.all), result
+      assert_equal f.many_json[Graph::Sentiment.all], result
     end
   end
 end
