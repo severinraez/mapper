@@ -2,7 +2,7 @@ class FDSL
   # SYNTAX
 
   # To define an anonymous function: f{ |arg| arg + 1 }
-  def f(&block)
+  def func(&block)
     raise 'Need a block' unless block_given?
 
     BlockAsLambda.new(binding, &block).lambda

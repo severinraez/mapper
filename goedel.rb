@@ -30,8 +30,37 @@ Graph::Bootstrap.new(config['db']).run
 Server = Class.new(Http::Server) do
   @@sentiments = Process::Sentiment.new
 
-  add_route :get, :sentiments, @@sentiments.method(:fetch)
-  add_route :post, :sentiments, @@sentiments.method(:create)
+  get('/sentiments') do
+    f.compose[
+      Web::Functions.validate[
+      params,
+      [
+        [:latitude, Float, required: true],
+        [:longitude, Float, required: true],
+        [:range, Float, required: false]
+      ] ],
+      Web::Functions.query[
+        pass_params[Graph::Sentiment.all, []],
+        pass_params[location, [:latitude, :longitude]],
+        pass_params[range, [:range]],
+      ],
+      FDSL::Functions.nodes_json
+    ][]
+  end
+
+  post('/sentiments') do
+    f.compose[
+      Web::Functions.validate[
+        params,
+        [
+          [:name, String, required: true],
+          [:latitude, Float, required: true],
+          [:longitude, Float, required: true]
+        ] ],
+      Sentiments::Functions.create,
+      API::Render.result_json
+    ][]
+  end
 end
 
 Server.run!

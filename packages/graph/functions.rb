@@ -8,7 +8,7 @@ module Graph
   # f.many_json { |nodes| f{ map[json, nodes] } }
 
   # (p, q) -> (a) => p(q(a))
-  f.compose { |p, q| f { |*args| p[q[*args]] } }
+  f.compose { |p, q| func { |*args| p[q[*args]] } }
   # a -> b
   f.json { |obj| obj.to_json }
   # (a -> b), [a] -> [b]
