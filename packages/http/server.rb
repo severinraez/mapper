@@ -21,7 +21,7 @@ class Http::Server < Sinatra::Base
     url_fragment = "/#{path.map(&:to_s).join('/')}"
 
     sinatra_method.call(url_fragment) do
-      process.call(params)
+      process.call(params.dup.tap{ |p| p.delete('captures') })
     end
   end
 end

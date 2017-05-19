@@ -7,8 +7,6 @@ require 'neo4j/core/cypher_session/adaptors/bolt'
 
 module Graph; end
 
-require_relative 'sentiment'
-
 class Graph::Bootstrap
   def initialize(config)
     @config = config
@@ -21,6 +19,8 @@ class Graph::Bootstrap
       raise "What's a #{class_name}" unless class_name[0..6] == "Graph::"
       class_name[7..-1]
     }
+
+    Neo4j::Config[:include_root_in_json] = false
 
     Neo4j::ActiveBase.on_establish_session do
       adaptor = Neo4j::Core::CypherSession::Adaptors::Bolt.new(db_url, wrap_level: :proc)

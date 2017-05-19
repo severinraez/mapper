@@ -34,14 +34,10 @@ establish_db_connection
 
 
 class Minitest::Spec
-  before do
-
-  end
-
   around do |test|
     Neo4j::ActiveBase.run_transaction do |tx|
       test.call
-      tx.mark_failXed
+      tx.mark_failed
     end
   end
 end
