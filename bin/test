@@ -1,0 +1,2 @@
+#!/bin/bash
+RUBYOPT=W0 rake test
