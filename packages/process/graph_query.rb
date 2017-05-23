@@ -9,10 +9,6 @@ module Process
       Graph::Functions
     end
 
-    def fi # impure functions
-      f
-    end
-
     # TRAITS
 
     # Parse and set params.
@@ -36,9 +32,9 @@ module Process
 
     def returns_json
       if @result.is_a?(Array)
-        f.many_json[@result]
+        f.many_json(@result)
       else
-        f.json[@result]
+        f.json(@result)
       end
     end
 
