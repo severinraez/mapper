@@ -9,7 +9,6 @@ end
 
 require_package 'graph/bootstrap'
 require_package 'process/index'
-require_package 'http/server'
 
 # CONFIGURATION
 # Load config into file.
@@ -27,40 +26,4 @@ Graph::Bootstrap.new(config['db']).run
 # match (c:Sentiment) with c call spatial.addNode('test_layer', c) yield node return count(*)
 
 # MISSION
-Server = Class.new(Http::Server) do
-  @@sentiments = Process::Sentiment.new
-
-  get('/sentiments') do
-
-    FDSL.with_libs(Web::Functions, FDSL::Functions) do
-      compose(
-        validate(
-          params,
-          ( [:latitude, Float, required: true],
-            [:longitude, Float, required: true],
-            [:range, Float, required: false] ) ),
-        query(
-          pass_params(Graph::Sentiment.all, []),
-          pass_params(location, :latitude, :longitude),
-          pass_params(range, :range) ),
-        nodes_json
-      ).call
-    end
-  end
-
-  post('/sentiments') do
-    f.compose[
-      Web::Functions.validate[
-        params,
-        [
-          [:name, String, required: true],
-          [:latitude, Float, required: true],
-          [:longitude, Float, required: true]
-        ] ],
-      Sentiments::Functions.create,
-      API::Render.result_json
-    ][]
-  end
-end
-
-Server.run!
+API::Server.run!

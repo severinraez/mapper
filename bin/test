@@ -1,2 +1,2 @@
 #!/bin/bash
-RUBYOPT=W0 rake test
+RUBYOPT=W0 RACK_ENV=test rake test
