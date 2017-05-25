@@ -7,6 +7,8 @@ require 'minitest/autorun'
 
 require "minitest/reporters"
 
+require 'pry'
+
 require_package 'graph/bootstrap'
 
 module Test

@@ -35,4 +35,31 @@ describe FDSL do
       assert_equal HigherOrder.double_identity(1), 2
     end
   end
+
+  describe 'with_libs' do
+    A = FDSL.create do |f|
+      f.a_func { 'a' }
+      f.overridden_func { 'base' }
+    end
+
+    B = FDSL.create do |f|
+      f.b_func { 'b' }
+      f.overridden_func { 'overridden' }
+    end
+
+    it 'includes a lib' do
+      FDSL.with_libs A do
+        assert_equal a_func, 'a'
+        assert_equal overridden_func, 'base'
+      end
+    end
+
+    it 'correctly overrides' do
+      FDSL.with_libs B, A do
+        assert_equal a_func, 'a'
+        assert_equal b_func, 'b'
+        assert_equal overridden_func, 'overridden'
+      end
+    end
+  end
 end

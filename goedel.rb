@@ -31,21 +31,21 @@ Server = Class.new(Http::Server) do
   @@sentiments = Process::Sentiment.new
 
   get('/sentiments') do
-    f.compose[
-      Web::Functions.validate[
-      params,
-      [
-        [:latitude, Float, required: true],
-        [:longitude, Float, required: true],
-        [:range, Float, required: false]
-      ] ],
-      Web::Functions.query[
-        pass_params[Graph::Sentiment.all, []],
-        pass_params[location, [:latitude, :longitude]],
-        pass_params[range, [:range]],
-      ],
-      FDSL::Functions.nodes_json
-    ][]
+
+    FDSL.with_libs(Web::Functions, FDSL::Functions) do
+      compose(
+        validate(
+          params,
+          ( [:latitude, Float, required: true],
+            [:longitude, Float, required: true],
+            [:range, Float, required: false] ) ),
+        query(
+          pass_params(Graph::Sentiment.all, []),
+          pass_params(location, :latitude, :longitude),
+          pass_params(range, :range) ),
+        nodes_json
+      ).call
+    end
   end
 
   post('/sentiments') do
