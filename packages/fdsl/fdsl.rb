@@ -1,11 +1,15 @@
-class FDSL
-
+module FDSL
   def self.create(&dsl_block)
+    # Where all the functions given by the user are defined
     methods = Module.new do
+      if defined?(Stdlib)
+        include Stdlib._methods
+      end
     end
 
     container = Module.new do
       extend MethodShortcut
+      extend methods
 
       class << self
         attr_accessor :_methods
@@ -83,3 +87,5 @@ class FDSL
   end
 
 end
+
+require_relative 'stdlib'

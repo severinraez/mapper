@@ -61,5 +61,11 @@ describe FDSL do
         assert_equal overridden_func, 'overridden'
       end
     end
+
+    it 'includes the stdlib' do
+      FDSL.with_libs A do
+        assert_equal map(proc { |p| p*2 }, [1,2]), [2,4]
+      end
+    end
   end
 end
