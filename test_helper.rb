@@ -15,7 +15,16 @@ module Test
   class BacktraceFilter < MiniTest::BacktraceFilter
     def filter(bt)
       bt = super(bt)
-      bt.reject { |line| line =~ /\.rvm/ }
+      if verbose?
+        bt
+      else
+        bt.reject { |line| line =~ /\.rvm/ }
+      end
+    end
+
+    private
+    def verbose?
+      @verbose ||= ENV['VERBOSE_TEST_BACKTRACES'] == 'true'
     end
   end
 
@@ -33,7 +42,6 @@ def establish_db_connection
 end
 
 establish_db_connection
-
 
 class Minitest::Spec
   around do |test|

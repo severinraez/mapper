@@ -12,16 +12,4 @@ class Http::Server < Sinatra::Base
 
     content_type :json
   end
-
-  # adds a route
-  def self.add_route(http_method, path, process)
-    sinatra_method = method(http_method)
-    path = Array(path)
-
-    url_fragment = "/#{path.map(&:to_s).join('/')}"
-
-    sinatra_method.call(url_fragment) do
-      process.call(params.dup.tap{ |p| p.delete('captures') })
-    end
-  end
 end

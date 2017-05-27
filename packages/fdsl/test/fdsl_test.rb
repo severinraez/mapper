@@ -22,6 +22,10 @@ describe FDSL do
     it 'can call its own functions' do
       assert_equal Simple.double_identity(1), 2
     end
+
+    it 'has a function proc shortcut' do
+      assert_equal Simple.double_identity_, Simple.method(:double_identity)
+    end
   end
 
   describe 'higher order functions and naming' do
@@ -67,5 +71,24 @@ describe FDSL do
         assert_equal map(proc { |p| p*2 }, [1,2]), [2,4]
       end
     end
+
+    it 'correctly delegates method proc shortcuts' do
+      FDSL.with_libs A do
+        # Strangely, we cannot compare method objects directly here (MiniTest assertion error)
+        assert_equal a_func_.class, A.method(:a_func).class
+        assert_equal a_func_.name, A.method(:a_func).name
+      end
+    end
+
+    it 'knows about the caller binding' do
+      def outer_binding_method
+        1
+      end
+
+      FDSL.with_libs A do
+        assert_equal outer_binding_method, 1
+      end
+    end
+
   end
 end

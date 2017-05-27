@@ -34,12 +34,21 @@ module FDSL
         extend lib._methods
       end
 
+      extend MethodShortcut
+
       class << self
         attr_accessor :_parent_binding
       end
 
       def self.method_missing(method, *args, &block)
-        _parent_binding.send(method, *args, &block)
+        # Delegate to included libs' method missing logic.
+        # This will handle `give_me_the_proc_` shortcuts.
+        begin
+          super(method, *args, &block)
+        rescue NoMethodError, NameError
+          # See what is defined outside of the given block.
+          _parent_binding.send(method, *args, &block)
+        end
       end
     end
 

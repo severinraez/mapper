@@ -1,29 +1,31 @@
 require_package 'http/server'
+require_relative 'functions'
 
 module API
   class Server < Http::Server
     get('/sentiments') do
-
+      pp params
       FDSL.with_libs(API::Functions, Graph::Functions) do
-        compose(
-          validate(
+        pipeline(
+          sanitize_params(
             params,
             [ [:latitude, Float, required: true],
               [:longitude, Float, required: true],
               [:range, Float, required: false] ] ),
-          query(
-            pass_params(Graph::Sentiment.all, []),
-            pass_params(location, :latitude, :longitude),
-            pass_params(range, :range) ),
-          nodes_json
-        ).call
+          params_pipeline(
+            [ Graph::Sentiment.method(:all) ],
+            [ filter_location_, :latitude, :longitude ],
+            [ filter_range_, :range ]
+          ),
+          nodes_json_
+        )
       end
     end
 
     post('/sentiments') do
       FDSL.with_libs(Web::Functions, FDSL::Functions, API::Render) do
         compose(
-          validate(
+          sanitize_params(
             params,
             [
               [:name, String, required: true],

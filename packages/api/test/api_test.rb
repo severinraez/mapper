@@ -3,20 +3,20 @@ require 'rack/test'
 
 require_relative '../api'
 
-class API::ServerTest < Minitest::Test
+def app
+  API::Server
+end
+
+describe 'GET /sentiments' do
   include Rack::Test::Methods
 
-  def app
-    API::Server
-  end
+  let(:json) { JSON.parse(last_response.body) }
 
-  def test_get_sentiments
+  it 'fetches' do
+    Graph::Sentiment.create(name: 'Test', latitude: 46.9479, longitude: 7.4446)
+
     get '/sentiments'
 
     assert_equal(json, Graph::Functions.many_json(Graph::Sentiment.all))
-  end
-
-  def json
-    JSON.parse(last_response.body)
   end
 end
