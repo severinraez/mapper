@@ -4,15 +4,15 @@ require_relative 'functions'
 module API
   class Server < Http::Server
     get('/sentiments') do
-      pp params
-      FDSL.with_libs(API::Functions, Graph::Functions) do
-        pipeline(
+      params
+      FDSL.with_libs(API::Functions, Graph::Functions, FDSL::Monads) do
+        maybe_arrow(
           sanitize_params(
             params,
             [ [:latitude, Float, required: true],
               [:longitude, Float, required: true],
               [:range, Float, required: false] ] ),
-          params_pipeline(
+          params_arrow(
             [ Graph::Sentiment.method(:all) ],
             [ filter_location_, :latitude, :longitude ],
             [ filter_range_, :range ]
@@ -23,8 +23,8 @@ module API
     end
 
     post('/sentiments') do
-      FDSL.with_libs(Web::Functions, FDSL::Functions, API::Render) do
-        compose(
+      FDSL.with_libs(Web::Functions, FDSL::Functions, API::Render, FDSL::Monads) do
+        maybe_arrow(
           sanitize_params(
             params,
             [

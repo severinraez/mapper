@@ -25,11 +25,11 @@ module API
     }
 
     fi._build_result_hash = typed(
-      :default =>
+      :else =>
         proc { |result_obj, result|
           name, value = result
           result_obj[name] = value },
-      [Error, :default] => proc { |error, _| error },
+      [Error, :else] => proc { |error, _| error },
       [Error, Error] => proc { |error, next_error| error.concat(next_error) } )
   end
 end

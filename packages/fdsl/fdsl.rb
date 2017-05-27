@@ -98,3 +98,4 @@ module FDSL
 end
 
 require_relative 'stdlib'
+require_relative 'monads'
